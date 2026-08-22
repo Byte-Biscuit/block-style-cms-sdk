@@ -111,7 +111,3 @@ uv run ruff check .
 uv run ruff format .
 ```
 
-## Release
-
-- Tag `js-v*` → `.github/workflows/js-release.yml` (needs `NPM_TOKEN`)
-- Tag `py-v*` → `.github/workflows/python-release.yml` (needs `PYPI_TOKEN`)
