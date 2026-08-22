@@ -224,6 +224,7 @@ class BlockStyleCmsClient:
         timeout: float = 60.0,
     ) -> None:
         from .resources.articles import ArticlesResource
+        from .resources.content import ContentResource
         from .resources.media import MediaResource
 
         self.http = HttpClient(
@@ -235,6 +236,7 @@ class BlockStyleCmsClient:
         )
         self.media = MediaResource(self.http)
         self.articles = ArticlesResource(self.http)
+        self.content = ContentResource(self.http)
 
     def close(self) -> None:
         self.http.close()

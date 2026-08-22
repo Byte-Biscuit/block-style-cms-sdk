@@ -72,6 +72,23 @@ client.articles.publish_from_markdown(
 )
 ```
 
+## Content metadata
+
+Before publishing, discover site configuration:
+
+- `GET /api/m/locales` — supported article languages (`zh-CN`, `zh-TW`, `en-US`)
+- `GET /api/m/channels` — site channels (栏目) from CMS settings
+
+```ts
+const locales = await client.content.listLocales();
+const channels = await client.content.listChannels();
+```
+
+```python
+locales = client.content.list_locales()
+channels = client.content.list_channels()
+```
+
 ## Packages
 
 | Package | Path | Registry |

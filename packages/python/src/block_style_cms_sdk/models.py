@@ -55,3 +55,22 @@ class FromMarkdownPayload(BaseModel):
     id: str
     slug: str
     locale: Locale
+
+
+ChannelItemType = Literal["tag", "page"]
+
+
+class ChannelItem(BaseModel):
+    id: str
+    type: ChannelItemType
+    href: str
+    tag: str | None = None
+    icon: str | None = None
+
+
+class LocaleInfo(BaseModel):
+    code: Locale
+    name: str
+    nativeName: str
+    englishName: str
+    flag: str

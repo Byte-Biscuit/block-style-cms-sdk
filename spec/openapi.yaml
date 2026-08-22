@@ -87,6 +87,44 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiResult"
 
+  /api/m/channels:
+    get:
+      operationId: listChannels
+      summary: List site channels (栏目)
+      tags: [content]
+      responses:
+        "200":
+          description: Channels retrieved (HTTP 200; check body.code)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelListResult"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResult"
+
+  /api/m/locales:
+    get:
+      operationId: listLocales
+      summary: List site-supported article languages
+      tags: [content]
+      responses:
+        "200":
+          description: Locales retrieved (HTTP 200; check body.code)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocaleListResult"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResult"
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -235,3 +273,54 @@ components:
           properties:
             payload:
               $ref: "#/components/schemas/FromMarkdownPayload"
+
+    ChannelItem:
+      type: object
+      required: [id, type, href]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [tag, page]
+        href:
+          type: string
+        tag:
+          type: string
+        icon:
+          type: string
+
+    ChannelListResult:
+      allOf:
+        - $ref: "#/components/schemas/ApiResult"
+        - type: object
+          properties:
+            payload:
+              type: array
+              items:
+                $ref: "#/components/schemas/ChannelItem"
+
+    LocaleInfo:
+      type: object
+      required: [code, name, nativeName, englishName, flag]
+      properties:
+        code:
+          $ref: "#/components/schemas/Locale"
+        name:
+          type: string
+        nativeName:
+          type: string
+        englishName:
+          type: string
+        flag:
+          type: string
+
+    LocaleListResult:
+      allOf:
+        - $ref: "#/components/schemas/ApiResult"
+        - type: object
+          properties:
+            payload:
+              type: array
+              items:
+                $ref: "#/components/schemas/LocaleInfo"

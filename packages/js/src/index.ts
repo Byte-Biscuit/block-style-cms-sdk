@@ -1,5 +1,6 @@
 import { HttpClient } from "./client.js";
 import { ArticlesResource } from "./resources/articles.js";
+import { ContentResource } from "./resources/content.js";
 import { MediaResource } from "./resources/media.js";
 import type { ClientOptions } from "./types.js";
 
@@ -7,11 +8,13 @@ export class BlockStyleCmsClient {
     readonly http: HttpClient;
     readonly media: MediaResource;
     readonly articles: ArticlesResource;
+    readonly content: ContentResource;
 
     constructor(options: ClientOptions) {
         this.http = new HttpClient(options);
         this.media = new MediaResource(this.http);
         this.articles = new ArticlesResource(this.http);
+        this.content = new ContentResource(this.http);
     }
 }
 

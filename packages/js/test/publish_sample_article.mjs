@@ -191,9 +191,25 @@ async function main() {
     const cleanup = env("BSC_CLEANUP") === "1";
 
     log("INFO", "base_url=%s slug=%s cleanup=%s", baseUrl, slug, cleanup);
-    log("INFO", "publishing %s (assets=%s)", ARTICLE, ASSETS);
 
     const client = new BlockStyleCmsClient({ baseUrl, apiKey });
+
+    const locales = await client.content.listLocales();
+    const channels = await client.content.listChannels();
+    log(
+        "INFO",
+        "site locales: %s",
+        locales.map((item) => `${item.code} (${item.nativeName})`).join(", ")
+    );
+    log(
+        "INFO",
+        "site channels: %s",
+        channels.map((item) => `${item.id} (${item.type})`).join(", ")
+    );
+    assertOk(locales.length >= 1, "expected at least one locale");
+    assertOk(channels.length >= 0, "expected at least one channel");
+
+    log("INFO", "publishing %s (assets=%s)", ARTICLE, ASSETS);
 
     const created = await client.articles.publishFromMarkdown({
         title: TITLE,

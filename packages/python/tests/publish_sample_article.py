@@ -133,7 +133,9 @@ def _verify_article_content(content: list[Any]) -> None:
 
     srcs = [str(img.get("src", "")) for img in images]
     logger.debug("image srcs: %s", srcs)
-    assert any(s.startswith("https://upload.wikimedia.org/") for s in srcs), "missing https image"
+    assert any(s.startswith("https://upload.wikimedia.org/") for s in srcs), (
+        "missing https image"
+    )
     assert any(s == CMS_SRC for s in srcs), "missing CMS /images/ placeholder"
     assert any(ABS_SRC in s for s in srcs), "missing absolute-path image"
     assert sum(s.startswith("/images/") for s in srcs) >= 4, srcs
@@ -165,9 +167,22 @@ def main() -> None:
     cleanup = _env("BSC_CLEANUP") == "1"
 
     logger.info("base_url=%s slug=%s cleanup=%s", base_url, slug, cleanup)
-    logger.info("publishing %s (assets=%s)", ARTICLE, ASSETS)
 
     with BlockStyleCmsClient(base_url=base_url, api_key=api_key) as client:
+        locales = client.content.list_locales()
+        channels = client.content.list_channels()
+        logger.info(
+            "site locales: %s",
+            [f"{item.code} ({item.nativeName})" for item in locales],
+        )
+        logger.info(
+            "site channels: %s",
+            [f"{item.id} ({item.type})" for item in channels],
+        )
+        assert len(locales) >= 1, locales
+        assert len(channels) >= 0, channels
+
+        logger.info("publishing %s (assets=%s)", ARTICLE, ASSETS)
         created = client.articles.publish_from_markdown(
             title=TITLE,
             slug=slug,

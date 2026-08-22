@@ -51,6 +51,24 @@ export type FromMarkdownPayload = {
     locale: Locale;
 };
 
+export type ChannelItemType = "tag" | "page";
+
+export type ChannelItem = {
+    id: string;
+    type: ChannelItemType;
+    href: string;
+    tag?: string;
+    icon?: string;
+};
+
+export type LocaleInfo = {
+    code: Locale;
+    name: string;
+    nativeName: string;
+    englishName: string;
+    flag: string;
+};
+
 export type ClientOptions = {
     /** CMS origin, e.g. https://cms.example.com */
     baseUrl: string;
