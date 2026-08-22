@@ -1,0 +1,237 @@
+openapi: 3.1.0
+info:
+  title: Block Style CMS Admin API (SDK subset)
+  version: 0.1.0
+  description: |
+    Contract for the Block Style CMS SDK publish flow.
+    Auth: API token via x-api-key or Authorization Bearer.
+servers:
+  - url: https://cms.example.com
+    description: Your CMS base URL (no trailing slash required)
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  /api/m/images:
+    post:
+      operationId: uploadImage
+      summary: Upload an image
+      tags: [media]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                options:
+                  type: string
+                  description: JSON string of ImageUploadOptions
+      responses:
+        "200":
+          description: Upload succeeded (HTTP 200; check body.code)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageUploadResult"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResult"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResult"
+
+  /api/m/articles/from-markdown:
+    post:
+      operationId: createArticleFromMarkdown
+      summary: Create an article from markdown body
+      tags: [articles]
+      description: |
+        Markdown body must contain no frontmatter. Relative image paths
+        must already be rewritten to /images/{filename} or http(s) URLs
+        (the SDK does this before calling).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FromMarkdownRequest"
+      responses:
+        "200":
+          description: Article created (HTTP 200; check body.code)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FromMarkdownResult"
+        "400":
+          description: Validation or unresolved image paths
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResult"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResult"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    ApiResult:
+      type: object
+      required: [code, message, payload]
+      properties:
+        code:
+          type: integer
+          description: Application status (200 = success)
+        message:
+          type: string
+        payload:
+          description: Endpoint-specific payload
+        tt:
+          type: number
+          description: Optional timing ms
+
+    Locale:
+      type: string
+      enum: [zh-CN, zh-TW, en-US]
+
+    ImageUploadOptions:
+      type: object
+      properties:
+        quality:
+          type: integer
+          minimum: 1
+          maximum: 100
+        maxWidth:
+          type: integer
+          minimum: 100
+          maximum: 4096
+        maxHeight:
+          type: integer
+          minimum: 100
+          maximum: 4096
+        enableWebP:
+          type: boolean
+
+    ImageMetaInfo:
+      type: object
+      required: [filename, originalName, size, width, height, mimeType, uploadedAt]
+      properties:
+        filename:
+          type: string
+        originalName:
+          type: string
+        size:
+          type: integer
+        width:
+          type: integer
+        height:
+          type: integer
+        mimeType:
+          type: string
+        uploadedAt:
+          type: string
+        fullUrl:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        altText:
+          type: string
+
+    ImageUploadResult:
+      allOf:
+        - $ref: "#/components/schemas/ApiResult"
+        - type: object
+          properties:
+            payload:
+              $ref: "#/components/schemas/ImageMetaInfo"
+
+    FromMarkdownRequest:
+      type: object
+      required: [title, slug, language]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        slug:
+          type: string
+          minLength: 1
+        summary:
+          type: string
+          default: ""
+        tags:
+          type: array
+          items:
+            type: string
+          default: []
+        keywords:
+          type: array
+          items:
+            type: string
+          default: []
+        language:
+          $ref: "#/components/schemas/Locale"
+        mdContent:
+          type: string
+          description: Markdown body (camelCase)
+        md-content:
+          type: string
+          description: Markdown body (kebab-case alias)
+        cover:
+          type: string
+          description: Cover image URL or /images/{filename}
+          default: ""
+        published:
+          type: boolean
+          default: false
+        __locale__:
+          type: string
+          description: UI/validation message locale (not article language)
+
+    FromMarkdownPayload:
+      type: object
+      required: [id, slug, locale]
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        locale:
+          $ref: "#/components/schemas/Locale"
+
+    FromMarkdownResult:
+      allOf:
+        - $ref: "#/components/schemas/ApiResult"
+        - type: object
+          properties:
+            payload:
+              $ref: "#/components/schemas/FromMarkdownPayload"

@@ -1,0 +1,17 @@
+{
+  "name": "block-style-cms-sdk",
+  "private": true,
+  "workspaces": [
+    "packages/js"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test:js": "npm run test -w @block-style-cms/sdk",
+    "build:js": "npm run build -w @block-style-cms/sdk"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.9"
+  }
+}
