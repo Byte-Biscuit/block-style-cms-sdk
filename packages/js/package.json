@@ -1,7 +1,13 @@
 {
   "name": "@block-style-cms/sdk",
   "version": "0.0.1",
-  "description": "Node.js SDK for Block Style CMS (markdown publish with image upload)",
+  "description": "Node.js SDK for Block Style CMS",
+  "authors": [
+    {
+      "name": "Biscuit Zhou",
+      "email": "biscuit_zhou@outlook.com"
+    }
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
