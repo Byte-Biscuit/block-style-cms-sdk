@@ -15,11 +15,9 @@ API contract: [`spec/openapi.yaml`](spec/openapi.yaml)
 # JS
 npm install
 npm run build:js
-npm run test:js
 
 # Python (from packages/python)
 uv sync --extra dev
-uv run pytest
 uv run ruff check .
 uv run ruff format .
 ```

@@ -62,7 +62,6 @@ From the monorepo root:
 ```bash
 npm install
 npm run build:js
-npm run test:js
 ```
 
 Remote API check with the shared sample fixture ([`samples/`](../../samples/)):

@@ -62,7 +62,6 @@ From `packages/python`:
 
 ```bash
 uv sync --extra dev
-uv run pytest
 uv run ruff check .
 uv run ruff format .
 ```
