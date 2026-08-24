@@ -1,17 +1,16 @@
 name: JS Release
 
 on:
-  push:
-    tags:
-      - "js-v*"
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
   publish:
+    if: github.event_name != 'release' || startsWith(github.event.release.tag_name, 'js-v')
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
     defaults:
       run:
         working-directory: packages/js
@@ -29,7 +28,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Publish
-        if: startsWith(github.ref, 'refs/tags/js-v')
+        if: github.event_name == 'release' && startsWith(github.event.release.tag_name, 'js-v')
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

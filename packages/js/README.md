@@ -76,5 +76,7 @@ npm run publish:sample
 ## Release
 
 1. Bump `version` in [`package.json`](package.json).
-2. Tag `js-vX.Y.Z` and push.
+2. Tag `js-vX.Y.Z`, push, and **Publish** a GitHub Release for that tag.
 3. GitHub Actions publishes to npm (requires `NPM_TOKEN` secret).
+
+Example: version `0.0.1` → tag `js-v0.0.1` → GitHub Release → npm.
