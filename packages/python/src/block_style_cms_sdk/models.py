@@ -4,7 +4,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-Locale = Literal["zh-CN", "zh-TW", "en-US"]
+# Site-configured language tag (BCP 47–style). Not a fixed enum — see list_locales.
+Locale = str
 
 
 class ApiResult(BaseModel):

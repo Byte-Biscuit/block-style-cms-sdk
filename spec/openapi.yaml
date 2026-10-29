@@ -153,7 +153,9 @@ components:
 
     Locale:
       type: string
-      enum: [zh-CN, zh-TW, en-US]
+      description: |
+        Article language tag for this CMS deployment (e.g. zh-CN, en-US, ja-JP).
+        Allowed values are site-specific — use GET /api/m/locales, not a fixed enum.
 
     ImageUploadOptions:
       type: object

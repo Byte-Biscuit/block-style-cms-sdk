@@ -1,6 +1,7 @@
 /** Types aligned with spec/openapi.yaml */
 
-export type Locale = "zh-CN" | "zh-TW" | "en-US";
+/** Site-configured language tag (e.g. zh-CN, en-US, ja-JP). Use listLocales(). */
+export type Locale = string;
 
 export type ApiResult<T = unknown> = {
     code: number;

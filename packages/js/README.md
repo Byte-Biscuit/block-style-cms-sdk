@@ -47,7 +47,7 @@ await client.articles.publishFromMarkdown({
 
 Before publishing, discover site configuration:
 
-- `GET /api/m/locales` — supported article languages (`zh-CN`, `zh-TW`, `en-US`)
+- `GET /api/m/locales` — site-supported article languages (deployment-specific)
 - `GET /api/m/channels` — site channels from CMS settings
 
 ```ts
