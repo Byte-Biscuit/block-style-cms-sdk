@@ -49,7 +49,10 @@ ARTICLES: list[dict[str, Any]] = [
         "published": True,
         "slug_suffix": "en-us",
         "title": "Block Style CMS Long-form Loop: Local Assets to Publish",
-        "summary": "Validate English long-form create with local temp assets; this locale is published.",
+        "summary": (
+            "Validate English long-form create with local temp assets; "
+            "this locale is published."
+        ),
         "tags": ["sdk-loop", "en-US", "longform"],
         "keywords": ["block-style-cms", "markdown", "illustrations"],
     },
@@ -483,7 +486,11 @@ def main() -> int:
                 raise
 
         pubs = [a for a in report["articles"] if a.get("published_actual")]
-        drafts = [a for a in report["articles"] if a.get("ok") and not a.get("published_actual")]
+        drafts = [
+            a
+            for a in report["articles"]
+            if a.get("ok") and not a.get("published_actual")
+        ]
         report["summary"] = {
             "total": len(report["articles"]),
             "published_count": len(pubs),

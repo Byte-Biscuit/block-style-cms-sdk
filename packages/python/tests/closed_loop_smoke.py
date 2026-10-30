@@ -18,7 +18,7 @@ import traceback
 from pathlib import Path
 from typing import Any
 
-from block_style_cms_sdk import ApiError, BlockStyleCmsClient
+from block_style_cms_sdk import BlockStyleCmsClient
 
 ROOT = Path(__file__).resolve().parents[3]
 SAMPLES_ASSETS = ROOT / "samples" / "assets"
