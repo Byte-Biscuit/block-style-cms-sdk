@@ -87,4 +87,4 @@ uv run python tests/publish_sample_article.py
 2. Tag `py-vX.Y.Z`, push, and **Publish** a GitHub Release for that tag.
 3. GitHub Actions uploads to PyPI via [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) (OIDC; no `PYPI_TOKEN` secret).
 
-Example: version `0.0.1` → tag `py-v0.0.1` → GitHub Release → PyPI.
+Example: version `0.0.3` → tag `py-v0.0.3` → GitHub Release → PyPI.

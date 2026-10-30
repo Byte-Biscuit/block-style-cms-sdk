@@ -1,6 +1,6 @@
 [project]
 name = "block-style-cms-sdk"
-version = "0.0.1"
+version = "0.0.3"
 description = "Python SDK for Block Style CMS"
 authors=[
   { name = "Biscuit Zhou", email = "biscuit_zhou@outlook.com" }

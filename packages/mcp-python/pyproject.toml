@@ -1,6 +1,6 @@
 [project]
 name = "block-style-cms-mcp"
-version = "0.0.1"
+version = "0.0.3"
 description = "MCP server for Block Style CMS (wraps block-style-cms-sdk)"
 authors = [
   { name = "Biscuit Zhou", email = "biscuit_zhou@outlook.com" }
@@ -21,7 +21,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "block-style-cms-sdk",
+  "block-style-cms-sdk>=0.0.3",
   "mcp>=2.0",
 ]
 
@@ -41,6 +41,8 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/block_style_cms_mcp"]
 
+# Local monorepo only (not shipped in the PyPI package metadata).
+# Published installs resolve block-style-cms-sdk>=0.0.3 from PyPI.
 [tool.uv.sources]
 block-style-cms-sdk = { path = "../python", editable = true }
 
