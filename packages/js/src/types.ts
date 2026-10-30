@@ -26,6 +26,7 @@ export type ImageMetaInfo = {
     mimeType: string;
     uploadedAt: string;
     fullUrl?: string;
+    contentHash?: string;
     title?: string;
     description?: string;
     tags?: string[];
@@ -50,6 +51,64 @@ export type FromMarkdownPayload = {
     id: string;
     slug: string;
     locale: Locale;
+};
+
+export type UpdateFromMarkdownRequest = FromMarkdownRequest & {
+    id: string;
+};
+
+export type ArticleMetadata = {
+    id: string;
+    slug: string;
+    title: string;
+    summary?: string;
+    tags?: string[];
+    keywords?: string[];
+    locale: Locale;
+    image?: string;
+    published?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+};
+
+export type Article = ArticleMetadata & {
+    content?: unknown[];
+    mdContent?: string;
+};
+
+export type ArticleListQuery = {
+    locale?: Locale | null;
+    tag?: string | null;
+    searchTerm?: string | null;
+    /**
+     * CMS list status filter token — **not** a boolean.
+     * Use `"published" | "draft" | "all"`. Do not pass `"true"` / `"false"`
+     * (API rejects them). Distinct from create/update `published?: boolean`.
+     */
+    published?: "published" | "draft" | "all" | null;
+    pageIndex?: number;
+    pageSize?: number;
+};
+
+export type ArticleListPayload = {
+    data: ArticleMetadata[];
+    pageIndex: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+};
+
+export type UpdateMetadataInput = {
+    id: string;
+    slug: string;
+    title: string;
+    locale: Locale;
+    summary?: string;
+    tags?: string[];
+    keywords?: string[];
+    image?: string;
+    published?: boolean;
+    __locale__?: string;
 };
 
 export type ChannelItemType = "tag" | "page";
@@ -103,4 +162,9 @@ export type PublishFromMarkdownInput = {
     coverFile?: string;
     published?: boolean;
     __locale__?: string;
+};
+
+export type UpdateFromMarkdownInput = PublishFromMarkdownInput & {
+    /** Existing article id (required for update) */
+    id: string;
 };

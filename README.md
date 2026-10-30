@@ -10,9 +10,11 @@ Official Node.js and Python client for [Block Style CMS](https://github.com/Byte
 
 API contract: [`spec/openapi.yaml`](spec/openapi.yaml)
 
+Article closed-loop design (lifecycle, HTTP contract, images/MD, proposed SDK surface): [`docs/`](docs/README.md)
+
 ## MCP (Python)
 
-stdio MCP server wrapping the Python SDK. Tools: `list_locales`, `list_channels`, `upload_image`, `publish_from_markdown`.
+stdio MCP server wrapping the Python SDK. Tools cover locales/channels, media upload/delete, and the article closed loop (publish / get / update / list / delete). See [`docs/`](docs/README.md) and [`packages/mcp-python/README.md`](packages/mcp-python/README.md).
 
 **Credentials live in the MCP host `env` block** (not tool args, not the repo):
 

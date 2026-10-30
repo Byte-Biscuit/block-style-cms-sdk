@@ -59,10 +59,23 @@ Local checkout (before PyPI):
 |------|---------|
 | `list_locales` | Supported article languages |
 | `list_channels` | Site channels |
-| `upload_image` | Upload a local image (`file_path` + optional processing options) |
-| `publish_from_markdown` | Publish markdown (uploads relative images under `assets_dir`) |
+| `upload_image` | Upload local image |
+| `delete_image` | Delete library image by filename |
+| `publish_from_markdown` | Create article from markdown |
+| `update_from_markdown` | Update article from markdown (`id` required) |
+| `get_article` | Get by slug + id (optional `include_md_content`) |
+| `get_article_by_slug` | Get by slug + locale (optional `include_md_content`) |
+| `list_articles` | List metadata with filters (`published` query: `published` \| `draft` \| `all`, **not** `true`/`false`) |
+| `update_article_metadata` | Metadata-only update |
+| `set_article_published` | Publish / unpublish |
+| `delete_article` | Delete by slug + id |
+| `delete_article_by_slug` | Delete by slug + locale |
+
+Article closed-loop design: see repo [`docs/`](../../docs/README.md).
 
 Path arguments (`md_file`, `assets_dir`, `file_path`, `cover_file`) must be readable by the MCP process (typically paths under the host workspace).
+
+`list_articles.published` accepts only `published` | `draft` | `all` (CMS query enum). Boolean strings fail. Create/update and `set_article_published` still use a real boolean for the article’s published flag.
 
 ## Develop
 

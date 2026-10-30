@@ -18,4 +18,8 @@ export class MediaResource {
     ): Promise<ImageMetaInfo> {
         return this.http.uploadImageFile(filePath, options);
     }
+
+    deleteImage(filename: string): Promise<unknown> {
+        return this.http.deleteImage(filename);
+    }
 }

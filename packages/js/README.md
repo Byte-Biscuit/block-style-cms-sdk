@@ -43,6 +43,31 @@ await client.articles.publishFromMarkdown({
 });
 ```
 
+## Article closed loop
+
+After create, prefer editing exported markdown so images stay as absolute `http(s)` URLs and are not re-uploaded:
+
+```ts
+const article = await client.articles.get(slug, id, {
+  includeMdContent: true,
+});
+// article.mdContent — edit, then:
+await client.articles.updateFromMarkdown({
+  id,
+  title: article.title,
+  slug,
+  language: article.locale,
+  mdContent: article.mdContent + "\n\nEdit.\n",
+  assetsDir: "./posts/assets",
+  published: false,
+});
+await client.articles.setPublished({ id, slug, published: true });
+await client.articles.delete(slug, id);
+```
+
+Also: `getBySlug`, `list`, `updateMetadata`, `deleteBySlug`, `media.deleteImage`.  
+Design notes: [`docs/`](../../docs/README.md).
+
 ## Content metadata
 
 Before publishing, discover site configuration:
@@ -53,6 +78,12 @@ Before publishing, discover site configuration:
 ```ts
 const locales = await client.content.listLocales();
 const channels = await client.content.listChannels();
+```
+
+List filter `published` is a status token — `"published" | "draft" | "all"` — **not** a boolean. Do not pass `"true"` / `"false"`.
+
+```ts
+await client.articles.list({ published: "published", pageSize: 20 });
 ```
 
 ## Develop

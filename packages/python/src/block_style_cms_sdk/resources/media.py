@@ -24,3 +24,6 @@ class MediaResource:
         options: ImageUploadOptions | None = None,
     ) -> ImageMetaInfo:
         return self._http.upload_image_file(file_path, options)
+
+    def delete_image(self, filename: str):
+        return self._http.delete_image(filename)

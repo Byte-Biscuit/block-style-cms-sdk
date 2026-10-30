@@ -56,6 +56,12 @@ locales = client.content.list_locales()
 channels = client.content.list_channels()
 ```
 
+List filter `published` is a status token — `"published"` | `"draft"` | `"all"` — **not** a boolean. Do not pass `"true"` / `"false"`.
+
+```python
+client.articles.list(published="published", page_size=20)
+```
+
 ## Develop
 
 From `packages/python`:

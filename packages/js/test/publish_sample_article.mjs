@@ -175,20 +175,18 @@ async function pathExists(p) {
     }
 }
 
-const BASE_URL = "http://192.168.62.62:3000";
-const API_KEY =
-    "bsc_YVHDGLNFGWtEyxHiPDBPOlTQtvnLWGFXqFKQjgPHyAqxUlfGbhbzCMLBPzzCFLFN";
-
 async function main() {
-    const baseUrl = BASE_URL;
-    const apiKey = API_KEY;
+    const baseUrl = env("BSC_BASE_URL");
+    const apiKey = env("BSC_API_KEY");
+    assertOk(baseUrl, "BSC_BASE_URL is required");
+    assertOk(apiKey, "BSC_API_KEY is required");
 
     assertOk(await pathExists(ARTICLE), `missing ${ARTICLE}`);
     assertOk(await pathExists(ASSETS), `missing ${ASSETS}`);
 
     const slug =
         env("BSC_TEST_SLUG") || `sdk-sample-${Math.floor(Date.now() / 1000)}`;
-    const cleanup = env("BSC_CLEANUP") === "1";
+    const cleanup = env("BSC_CLEANUP") !== "0";
 
     log("INFO", "base_url=%s slug=%s cleanup=%s", baseUrl, slug, cleanup);
 
@@ -236,24 +234,52 @@ async function main() {
         created.locale
     );
 
-    const fetchPath = `/api/m/articles/${slug}/${created.id}`;
-    log("INFO", "fetching %s", fetchPath);
-    const result = await client.http.requestJson("GET", fetchPath);
-    assertOk(result.code === 200, `fetch failed: ${result.message}`);
-
-    const article = result.payload;
+    log("INFO", "fetching article slug=%s id=%s", slug, created.id);
+    const article = await client.articles.get(slug, created.id, {
+        includeMdContent: true,
+    });
     assertOk(article.title === TITLE, `title mismatch: ${article.title}`);
     const content = article.content;
     assertOk(
         Array.isArray(content) && content.length > 0,
         "empty article content"
     );
+    assertOk(
+        typeof article.mdContent === "string" && article.mdContent.length > 0,
+        "expected mdContent from GET"
+    );
+    assertOk(
+        article.mdContent.includes("http://") ||
+            article.mdContent.includes("https://"),
+        "mdContent should use absolute image URLs"
+    );
     log("INFO", "verifying %d top-level block(s)", content.length);
     verifyArticleContent(content);
 
+    const updatedMd = `${article.mdContent}\n\nUpdated by SDK sample loop.\n`;
+    log("INFO", "updating article from markdown id=%s", created.id);
+    await client.articles.updateFromMarkdown({
+        id: created.id,
+        title: TITLE,
+        slug,
+        summary: SUMMARY,
+        tags: TAGS,
+        language: LANGUAGE,
+        mdContent: updatedMd,
+        assetsDir: ASSETS,
+        published: false,
+    });
+    const after = await client.articles.get(slug, created.id, {
+        includeMdContent: true,
+    });
+    assertOk(
+        String(after.mdContent ?? "").includes("Updated by SDK sample loop"),
+        "updateFromMarkdown did not persist markdown change"
+    );
+
     if (cleanup) {
         log("INFO", "deleting article id=%s", created.id);
-        await client.http.requestJson("DELETE", fetchPath);
+        await client.articles.delete(slug, created.id);
     }
 
     log(

@@ -2,11 +2,16 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type {
     ApiResult,
+    Article,
+    ArticleListPayload,
+    ArticleListQuery,
     ClientOptions,
     FromMarkdownPayload,
     FromMarkdownRequest,
     ImageMetaInfo,
     ImageUploadOptions,
+    UpdateFromMarkdownRequest,
+    UpdateMetadataInput,
 } from "./types.js";
 
 export class ApiError extends Error {
@@ -172,6 +177,115 @@ export class HttpClient {
             "POST",
             "/api/m/articles/from-markdown",
             { json: body }
+        );
+        return result.payload;
+    }
+
+    async updateArticleFromMarkdown(
+        body: UpdateFromMarkdownRequest
+    ): Promise<FromMarkdownPayload> {
+        const result = await this.requestJson<FromMarkdownPayload>(
+            "PUT",
+            "/api/m/articles/from-markdown",
+            { json: body }
+        );
+        return result.payload;
+    }
+
+    async getArticle(
+        slug: string,
+        id: string,
+        options: { includeMdContent?: boolean } = {}
+    ): Promise<Article> {
+        const q = new URLSearchParams();
+        if (options.includeMdContent) q.set("includeMdContent", "true");
+        const qs = q.toString();
+        const path = `/api/m/articles/${encodeURIComponent(slug)}/${encodeURIComponent(id)}`;
+        const result = await this.requestJson<Article>(
+            "GET",
+            qs ? `${path}?${qs}` : path
+        );
+        return result.payload;
+    }
+
+    async getArticleBySlug(
+        slug: string,
+        locale: string,
+        options: { includeMdContent?: boolean } = {}
+    ): Promise<Article> {
+        const q = new URLSearchParams({ locale });
+        if (options.includeMdContent) q.set("includeMdContent", "true");
+        const result = await this.requestJson<Article>(
+            "GET",
+            `/api/m/articles/by-slug/${encodeURIComponent(slug)}?${q}`
+        );
+        return result.payload;
+    }
+
+    /**
+     * List article metadata. `query.published` must be
+     * `"published" | "draft" | "all"` (CMS enum), not a boolean string.
+     */
+    async listArticles(
+        query: ArticleListQuery = {}
+    ): Promise<ArticleListPayload> {
+        // CMS validates query strictly: pageIndex/pageSize must be present.
+        const q = new URLSearchParams({
+            pageIndex: String(query.pageIndex ?? 1),
+            pageSize: String(query.pageSize ?? 10),
+        });
+        if (query.locale) q.set("locale", query.locale);
+        if (query.tag) q.set("tag", query.tag);
+        if (query.searchTerm) q.set("searchTerm", query.searchTerm);
+        if (query.published) q.set("published", query.published);
+        const result = await this.requestJson<ArticleListPayload>(
+            "GET",
+            `/api/m/articles?${q}`
+        );
+        return result.payload;
+    }
+
+    async updateArticle(
+        body: UpdateMetadataInput & { content?: unknown[] }
+    ): Promise<{ slug: string; language: string }> {
+        const result = await this.requestJson<{
+            slug: string;
+            language: string;
+        }>("PUT", "/api/m/articles", { json: body });
+        return result.payload;
+    }
+
+    async deleteArticle(
+        slug: string,
+        id: string
+    ): Promise<{ slug: string; id: string }> {
+        const result = await this.requestJson<{ slug: string; id: string }>(
+            "DELETE",
+            `/api/m/articles/${encodeURIComponent(slug)}/${encodeURIComponent(id)}`
+        );
+        return result.payload;
+    }
+
+    async deleteArticleBySlug(
+        slug: string,
+        locale: string
+    ): Promise<{ slug: string; id: string; locale: string }> {
+        const q = new URLSearchParams({ locale });
+        const result = await this.requestJson<{
+            slug: string;
+            id: string;
+            locale: string;
+        }>(
+            "DELETE",
+            `/api/m/articles/by-slug/${encodeURIComponent(slug)}?${q}`
+        );
+        return result.payload;
+    }
+
+    async deleteImage(filename: string): Promise<unknown> {
+        const result = await this.requestJson<unknown>(
+            "DELETE",
+            `/api/m/images/${encodeURIComponent(filename)}`
         );
         return result.payload;
     }

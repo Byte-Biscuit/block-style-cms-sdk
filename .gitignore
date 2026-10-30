@@ -1,4 +1,6 @@
 node_modules/
+.env
+tmp/
 dist/
 .venv/
 **/__pycache__/
@@ -8,3 +10,6 @@ dist/
 *.pyc
 .DS_Store
 coverage/
+packages/python/tests/_closed_loop_work/
+packages/python/tests/closed_loop_report.json
+packages/python/tests/trilingual_longform_report.json

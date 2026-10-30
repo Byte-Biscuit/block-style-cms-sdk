@@ -9,10 +9,14 @@ import httpx
 
 from .models import (
     ApiResult,
+    Article,
+    ArticleListPayload,
+    ArticleListPublishedFilter,
     FromMarkdownPayload,
     FromMarkdownRequest,
     ImageMetaInfo,
     ImageUploadOptions,
+    UpdateFromMarkdownRequest,
 )
 
 logger = logging.getLogger(__name__)
@@ -211,6 +215,108 @@ class HttpClient:
             article.locale,
         )
         return article
+
+    def update_article_from_markdown(
+        self, body: UpdateFromMarkdownRequest
+    ) -> FromMarkdownPayload:
+        logger.info(
+            "updating article from markdown id=%s slug=%s",
+            body.id,
+            body.slug,
+        )
+        payload = body.model_dump(by_alias=True, exclude_none=True)
+        result = self.request_json(
+            "PUT",
+            "/api/m/articles/from-markdown",
+            json=payload,
+        )
+        return FromMarkdownPayload.model_validate(result.payload)
+
+    def get_article(
+        self,
+        slug: str,
+        id: str,
+        *,
+        include_md_content: bool = False,
+    ) -> Article:
+        path = f"/api/m/articles/{slug}/{id}"
+        if include_md_content:
+            path = f"{path}?includeMdContent=true"
+        result = self.request_json("GET", path)
+        return Article.model_validate(result.payload)
+
+    def get_article_by_slug(
+        self,
+        slug: str,
+        locale: str,
+        *,
+        include_md_content: bool = False,
+    ) -> Article:
+        from urllib.parse import urlencode
+
+        q: dict[str, str] = {"locale": locale}
+        if include_md_content:
+            q["includeMdContent"] = "true"
+        result = self.request_json(
+            "GET",
+            f"/api/m/articles/by-slug/{slug}?{urlencode(q)}",
+        )
+        return Article.model_validate(result.payload)
+
+    def list_articles(
+        self,
+        *,
+        locale: str | None = None,
+        tag: str | None = None,
+        search_term: str | None = None,
+        published: ArticleListPublishedFilter | None = None,
+        page_index: int | None = None,
+        page_size: int | None = None,
+    ) -> ArticleListPayload:
+        """GET /api/m/articles with optional filters.
+
+        ``published`` must be one of ``\"published\"`` | ``\"draft\"`` | ``\"all\"``
+        (CMS query enum). It is **not** a boolean — ``\"true\"`` / ``\"false\"`` fail.
+        Omit the argument (or pass ``\"all\"``) to include every status.
+        """
+        from urllib.parse import urlencode
+
+        # CMS validates query strictly: pageIndex/pageSize must be present
+        # (OpenAPI defaults are not applied server-side).
+        q: dict[str, str] = {
+            "pageIndex": str(1 if page_index is None else page_index),
+            "pageSize": str(10 if page_size is None else page_size),
+        }
+        if locale:
+            q["locale"] = locale
+        if tag:
+            q["tag"] = tag
+        if search_term:
+            q["searchTerm"] = search_term
+        if published:
+            q["published"] = published
+        path = f"/api/m/articles?{urlencode(q)}"
+        result = self.request_json("GET", path)
+        return ArticleListPayload.model_validate(result.payload)
+
+    def update_article(self, body: dict[str, Any]) -> dict[str, Any]:
+        result = self.request_json("PUT", "/api/m/articles", json=body)
+        return result.payload if isinstance(result.payload, dict) else {}
+
+    def delete_article(self, slug: str, id: str) -> dict[str, Any]:
+        result = self.request_json("DELETE", f"/api/m/articles/{slug}/{id}")
+        return result.payload if isinstance(result.payload, dict) else {}
+
+    def delete_article_by_slug(self, slug: str, locale: str) -> dict[str, Any]:
+        result = self.request_json(
+            "DELETE",
+            f"/api/m/articles/by-slug/{slug}?locale={locale}",
+        )
+        return result.payload if isinstance(result.payload, dict) else {}
+
+    def delete_image(self, filename: str) -> Any:
+        result = self.request_json("DELETE", f"/api/m/images/{filename}")
+        return result.payload
 
 
 class BlockStyleCmsClient:

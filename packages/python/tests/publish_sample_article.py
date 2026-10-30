@@ -203,21 +203,38 @@ def main() -> None:
             created.locale,
         )
 
-        fetch_path = f"/api/m/articles/{slug}/{created.id}"
-        logger.info("fetching %s", fetch_path)
-        result = client.http.request_json("GET", fetch_path)
-        assert result.code == 200, result
-        article = result.payload
-        assert isinstance(article, dict), article
-        assert article.get("title") == TITLE, article.get("title")
-        content = article.get("content")
+        logger.info("fetching article slug=%s id=%s", slug, created.id)
+        article = client.articles.get(
+            slug, created.id, include_md_content=True
+        )
+        assert article.title == TITLE, article.title
+        content = article.content
         assert isinstance(content, list) and content, "empty article content"
+        assert article.mdContent, "expected mdContent from GET"
         logger.info("verifying %d top-level block(s)", len(content))
         _verify_article_content(content)
 
+        updated_md = f"{article.mdContent}\n\nUpdated by SDK sample loop.\n"
+        logger.info("updating article from markdown id=%s", created.id)
+        client.articles.update_from_markdown(
+            id=created.id,
+            title=TITLE,
+            slug=slug,
+            summary=SUMMARY,
+            tags=TAGS,
+            language=LANGUAGE,
+            md_content=updated_md,
+            assets_dir=ASSETS,
+            published=False,
+        )
+        after = client.articles.get(
+            slug, created.id, include_md_content=True
+        )
+        assert after.mdContent and "Updated by SDK sample loop" in after.mdContent
+
         if cleanup:
             logger.info("deleting article id=%s", created.id)
-            client.http.request_json("DELETE", fetch_path)
+            client.articles.delete(slug, created.id)
 
     logger.info(
         "publish_sample_article: ok slug=%s id=%s%s",
@@ -228,8 +245,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    os.environ["BSC_BASE_URL"] = "http://192.168.62.62:3000"
-    os.environ["BSC_API_KEY"] = (
-        "bsc_YVHDGLNFGWtEyxHiPDBPOlTQtvnLWGFXqFKQjgPHyAqxUlfGbhbzCMLBPzzCFLFN"
-    )
     main()

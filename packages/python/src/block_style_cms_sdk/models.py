@@ -7,6 +7,9 @@ from pydantic import BaseModel, Field
 # Site-configured language tag (BCP 47–style). Not a fixed enum — see list_locales.
 Locale = str
 
+# GET /api/m/articles?published=… — not a boolean. Use these tokens only.
+ArticleListPublishedFilter = Literal["published", "draft", "all"]
+
 
 class ApiResult(BaseModel):
     code: int
@@ -31,6 +34,7 @@ class ImageMetaInfo(BaseModel):
     mimeType: str
     uploadedAt: str
     fullUrl: str | None = None
+    contentHash: str | None = None
     title: str | None = None
     description: str | None = None
     tags: list[str] | None = None
@@ -52,10 +56,41 @@ class FromMarkdownRequest(BaseModel):
     model_config = {"populate_by_name": True}
 
 
+class UpdateFromMarkdownRequest(FromMarkdownRequest):
+    id: str
+
+
 class FromMarkdownPayload(BaseModel):
     id: str
     slug: str
     locale: Locale
+
+
+class ArticleMetadata(BaseModel):
+    id: str
+    slug: str
+    title: str
+    summary: str | None = None
+    tags: list[str] | None = None
+    keywords: list[str] | None = None
+    locale: Locale
+    image: str | None = None
+    published: bool | None = None
+    createdAt: Any = None
+    updatedAt: Any = None
+
+
+class Article(ArticleMetadata):
+    content: list[Any] | None = None
+    mdContent: str | None = None
+
+
+class ArticleListPayload(BaseModel):
+    data: list[ArticleMetadata]
+    pageIndex: int
+    pageSize: int
+    total: int
+    totalPages: int
 
 
 ChannelItemType = Literal["tag", "page"]
