@@ -88,5 +88,15 @@ uv run pytest
 
 ## Release
 
-1. Bump `version` in `pyproject.toml`.
-2. Tag `mcp-py-vX.Y.Z`, push, and publish a GitHub Release when a workflow is added.
+1. Ensure the required `block-style-cms-sdk` version is already on PyPI.
+2. Bump `version` in `pyproject.toml` (and keep the SDK dependency pin in sync).
+3. Tag `mcp-py-vX.Y.Z`, push, and **Publish** a GitHub Release for that tag.
+4. GitHub Actions uploads to PyPI via [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) (OIDC; GitHub Environment **`pypi-mcp`**, separate from the SDK’s `pypi` environment).
+
+Example: version `0.0.3` → tag `mcp-py-v0.0.3` → GitHub Release → PyPI.
+
+Setup checklist:
+
+1. GitHub → Settings → Environments → create **`pypi-mcp`**.
+2. Deployment branches and tags: allow tag pattern **`mcp-py-v*`** (optionally branch `master` for manual dry-runs).
+3. On PyPI, register a Trusted Publisher for project `block-style-cms-mcp` pointing at workflow `mcp-python-release.yml` (and environment name `pypi-mcp` if the form asks for it).

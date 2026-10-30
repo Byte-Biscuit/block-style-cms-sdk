@@ -1,0 +1,38 @@
+name: MCP Python Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    if: github.event_name != 'release' || startsWith(github.event.release.tag_name, 'mcp-py-v')
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi-mcp
+      url: https://pypi.org/p/block-style-cms-mcp
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: packages/mcp-python
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Sync
+        run: uv sync --extra dev
+      - name: Lint
+        run: uv run ruff check src tests
+      - name: Test
+        run: uv run pytest
+      - name: Build
+        run: uv build
+      - name: Publish
+        if: github.event_name == 'release' && startsWith(github.event.release.tag_name, 'mcp-py-v')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/mcp-python/dist
